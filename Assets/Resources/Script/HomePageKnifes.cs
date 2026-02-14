@@ -5,15 +5,13 @@ using System.Collections.Generic;
 public class HomePageKnifes : MonoBehaviour
 {
     [SerializeField] List<GameObject> knives;
-    [SerializeField] GameObject knifePrefab;
     [SerializeField] float spawnTime;
     [SerializeField] float Timer;
     [SerializeField] float speed;
     [SerializeField] int LeftOrRight;
     [SerializeField] int Right = 1;
-    [SerializeField] int Left = 0;
     [SerializeField] float Rotation;
-    [SerializeField] float Limit;
+
 
     void Start()
     {
@@ -32,7 +30,6 @@ public class HomePageKnifes : MonoBehaviour
                 spawnTime = Random.Range(15f, 20f);
                 Timer = 0;
                 LeftOrRight = Random.Range(0, 2);
-                //LeftOrRight = 0;
 
                 if (LeftOrRight == Right)
                 {

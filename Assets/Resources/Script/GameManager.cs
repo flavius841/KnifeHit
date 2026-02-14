@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ButtonManager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     [SerializeField] GameObject LeftTransition;
     [SerializeField] GameObject RightTransition;
