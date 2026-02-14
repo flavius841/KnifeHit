@@ -2,8 +2,9 @@ using UnityEngine;
 
 public class RotateSettingsButton : MonoBehaviour
 {
-    [SerializeField]  float rotationSpeed;
-    
+    [SerializeField] float rotationSpeed;
+
+
     void Update()
     {
         transform.Rotate(0, 0, rotationSpeed * Time.deltaTime);

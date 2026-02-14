@@ -11,6 +11,8 @@ public class HomePageKnifes : MonoBehaviour
     [SerializeField] int LeftOrRight;
     [SerializeField] int Right = 1;
     [SerializeField] float Rotation;
+    public GameManager gameManager;
+    [SerializeField] bool Stop;
 
 
     void Start()
@@ -20,12 +22,17 @@ public class HomePageKnifes : MonoBehaviour
 
     void Update()
     {
+        if (gameManager.StartTransition)
+        {
+            Stop = true;
+        }
+
         foreach (var knife in knives)
         {
 
             Timer += Time.deltaTime;
 
-            if (Timer >= spawnTime)
+            if (Timer >= spawnTime && !Stop)
             {
                 spawnTime = Random.Range(15f, 20f);
                 Timer = 0;
@@ -45,7 +52,7 @@ public class HomePageKnifes : MonoBehaviour
                 knife.transform.position = new Vector3(0, 0, 0);
             }
 
-            else
+            else if (Timer <= 30f)
             {
                 knife.transform.Translate(Vector3.right * speed * Time.deltaTime, Space.Self);
             }

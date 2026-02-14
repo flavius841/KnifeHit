@@ -5,7 +5,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject LeftTransition;
     [SerializeField] GameObject RightTransition;
     [SerializeField] float Speed;
-    [SerializeField] bool StartTransition;
+    public bool StartTransition;
     [SerializeField] bool DelayDone;
     [SerializeField] GameObject TargetNormal;
 
@@ -35,7 +35,12 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            // GetComponent<HomePageKnifes>().enabled = false;
+            TargetNormal.transform.position += new Vector3(0, -Speed * Time.deltaTime, 0);
+
+            if (TargetNormal.transform.position.y <= 1)
+            {
+                StartTransition = false;
+            }
         }
 
     }
@@ -45,8 +50,4 @@ public class GameManager : MonoBehaviour
         StartTransition = true;
     }
 
-    public void StartNewLevel()
-    {
-
-    }
 }
