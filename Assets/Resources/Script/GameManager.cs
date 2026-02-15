@@ -12,6 +12,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject SettingsButtons;
     [SerializeField] bool SettingsTransition;
     [SerializeField] GameObject PlayButton;
+    [SerializeField] int ID;
+    [SerializeField] bool KnifeMenuTransition;
+    [SerializeField] GameObject KnifeMenuButton;
+    [SerializeField] GameObject ExitButton;
+    [SerializeField] GameObject KnifeMenu;
+    [SerializeField] bool SettingsOpened;
+    [SerializeField] bool BackToHomeTransition;
 
     void Start()
     {
@@ -22,12 +29,24 @@ public class GameManager : MonoBehaviour
     {
         if (HomeTransition)
         {
-            QuitHome(Logo, HomeButtons, ref HomeTransition, TargetNormal);
+            QuitHome(Logo, HomeButtons, ref HomeTransition, TargetNormal, Speed);
         }
 
         if (SettingsTransition)
         {
-            QuitHome(Logo, PlayButton, ref SettingsTransition, SettingsButtons);
+            QuitHome(Logo, PlayButton, ref SettingsTransition, SettingsButtons, Speed);
+            SettingsOpened = true;
+        }
+
+        if (KnifeMenuTransition)
+        {
+            QuitHome(ExitButton, KnifeMenuButton, ref KnifeMenuTransition, KnifeMenu, Speed);
+        }
+
+        if (BackToHomeTransition)
+        {
+            QuitHome(Logo, PlayButton, ref BackToHomeTransition, SettingsButtons, -Speed);
+            SettingsOpened = false;
         }
     }
 
@@ -39,7 +58,20 @@ public class GameManager : MonoBehaviour
 
     public void SettingsButtonBool()
     {
-        SettingsTransition = true;
+        if (!SettingsOpened)
+        {
+            SettingsTransition = true;
+        }
+
+        else
+        {
+            BackToHomeTransition = true;
+        }
+    }
+
+    public void KnifeMenuButtonBool()
+    {
+        KnifeMenuTransition = true;
     }
 
     public void Transition(GameObject RightTransition, GameObject LeftTransition, float TransitionSpeed)
@@ -48,7 +80,7 @@ public class GameManager : MonoBehaviour
         LeftTransition.transform.position += new Vector3(-TransitionSpeed * Time.deltaTime, 0, 0);
     }
 
-    public void QuitHome(GameObject RightTransition, GameObject LeftTransition, ref bool QuitHomeTransition, GameObject NextObject)
+    public void QuitHome(GameObject RightTransition, GameObject LeftTransition, ref bool QuitHomeTransition, GameObject NextObject, float TransitionSpeed)
     {
         if (NextObject.transform.position.y <= 1)
         {
@@ -58,13 +90,13 @@ public class GameManager : MonoBehaviour
         else if (DelayDone)
         {
 
-            Transition(LeftTransition, RightTransition, -Speed);
-            NextObject.transform.position += new Vector3(0, -Speed * Time.deltaTime, 0);
+            Transition(LeftTransition, RightTransition, -TransitionSpeed);
+            NextObject.transform.position += new Vector3(0, -TransitionSpeed * Time.deltaTime, 0);
         }
 
         else
         {
-            Transition(LeftTransition, RightTransition, Speed / 2);
+            Transition(LeftTransition, RightTransition, TransitionSpeed / 2);
         }
 
         if (RightTransition.transform.position.x <= -0.3f)
@@ -76,6 +108,11 @@ public class GameManager : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    public void KnifeID(int id)
+    {
+        ID = id;
     }
 
 }
