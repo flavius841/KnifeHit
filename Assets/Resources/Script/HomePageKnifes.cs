@@ -22,7 +22,7 @@ public class HomePageKnifes : MonoBehaviour
 
     void Update()
     {
-        if (gameManager.StartTransition)
+        if (gameManager.HomeTransition)
         {
             Stop = true;
         }
