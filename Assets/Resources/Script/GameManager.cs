@@ -9,8 +9,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] float Speed;
     [SerializeField] bool DelayDone;
     [SerializeField] GameObject TargetNormal;
-    [SerializeField] GameObject SettingsButton;
+    [SerializeField] GameObject SettingsButtons;
     [SerializeField] bool SettingsTransition;
+    [SerializeField] GameObject PlayButton;
 
     void Start()
     {
@@ -21,7 +22,12 @@ public class GameManager : MonoBehaviour
     {
         if (HomeTransition)
         {
-            QuitHome(Logo, HomeButtons);
+            QuitHome(Logo, HomeButtons, ref HomeTransition, TargetNormal);
+        }
+
+        if (SettingsTransition)
+        {
+            QuitHome(Logo, PlayButton, ref SettingsTransition, SettingsButtons);
         }
     }
 
@@ -42,17 +48,18 @@ public class GameManager : MonoBehaviour
         LeftTransition.transform.position += new Vector3(-TransitionSpeed * Time.deltaTime, 0, 0);
     }
 
-    public void QuitHome(GameObject RightTransition, GameObject LeftTransition)
+    public void QuitHome(GameObject RightTransition, GameObject LeftTransition, ref bool QuitHomeTransition, GameObject NextObject)
     {
-        if (DelayDone)
+        if (NextObject.transform.position.y <= 1)
         {
-            Transition(LeftTransition, RightTransition, -Speed);
-            TargetNormal.transform.position += new Vector3(0, -Speed * Time.deltaTime, 0);
+            QuitHomeTransition = false;
+        }
 
-            if (TargetNormal.transform.position.y <= 1)
-            {
-                HomeTransition = false;
-            }
+        else if (DelayDone)
+        {
+
+            Transition(LeftTransition, RightTransition, -Speed);
+            NextObject.transform.position += new Vector3(0, -Speed * Time.deltaTime, 0);
         }
 
         else
@@ -64,6 +71,11 @@ public class GameManager : MonoBehaviour
         {
             DelayDone = true;
         }
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 
 }
