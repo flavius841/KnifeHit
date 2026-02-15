@@ -1,142 +1,183 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 using System.Collections.Generic;
 
-public class CombineUIImages : MonoBehaviour
+public class CombineChildrenOfEachChild : MonoBehaviour
 {
-    // This list will hold your final combined sprites
-    public List<Sprite> resultingSprites = new List<Sprite>();
+    [Header("Settings")]
+    public bool hideOriginalsOnSuccess = true;
+
+    [Header("Results")]
+    public List<Sprite> createdSprites = new List<Sprite>();
 
     void Start()
     {
-        MergeTopLevelChildren();
+        StartCoroutine(CombineRoutine());
     }
 
-    public void MergeTopLevelChildren()
+    IEnumerator CombineRoutine()
     {
-        resultingSprites.Clear();
+        // Wait for Unity to build the UI layout
+        yield return new WaitForEndOfFrame();
 
-        // 1. Loop through every direct child of the object this script is attached to
-        foreach (Transform topLevelChild in transform)
+        CombineAllGroups();
+    }
+
+    void CombineAllGroups()
+    {
+        createdSprites.Clear();
+
+        // Loop through each Top-Level Child (Child 1, Child 2...)
+        foreach (Transform topGroup in transform)
         {
-            // Get the Main Image and all its nested children images
-            List<Image> imagesToMerge = new List<Image>();
+            // Skip inactive objects
+            if (!topGroup.gameObject.activeInHierarchy) continue;
 
-            // Add all images found inside this top level child (including itself)
-            imagesToMerge.AddRange(topLevelChild.GetComponentsInChildren<Image>());
+            // Find all images in this group (including the group parent itself)
+            List<Image> images = new List<Image>();
+            images.AddRange(topGroup.GetComponentsInChildren<Image>());
 
-            // If this child has no images at all, skip it
-            if (imagesToMerge.Count == 0) continue;
+            // Remove images that are invisible (alpha 0) or disabled
+            images.RemoveAll(img => img.sprite == null || !img.enabled || img.color.a == 0);
 
-            // 2. Combine them into one sprite
-            Sprite newSprite = CombineListToSprite(imagesToMerge);
+            if (images.Count == 0) continue;
 
-            if (newSprite != null)
+            // Create the combined sprite
+            Sprite combined = MergeImagesPreservingTransparency(images, topGroup);
+
+            if (combined != null)
             {
-                newSprite.name = topLevelChild.name + "_Combined";
-                resultingSprites.Add(newSprite);
+                combined.name = topGroup.name + "_Sprite";
+                createdSprites.Add(combined);
+                Debug.Log($"Success: Created transparent sprite for '{topGroup.name}'");
 
-                // Optional: Hide the original children and show only the new one?
-                // For now, we just log it.
-                Debug.Log($"Created combined sprite for: {topLevelChild.name}");
+                // Optional: Hide the original messy objects
+                if (hideOriginalsOnSuccess)
+                {
+                    foreach (Transform t in topGroup) t.gameObject.SetActive(false);
+                    if (topGroup.GetComponent<Image>()) topGroup.GetComponent<Image>().enabled = false;
+
+                    // Assign the new sprite to the top object if it has an Image component
+                    Image parentImg = topGroup.GetComponent<Image>();
+                    if (parentImg == null) parentImg = topGroup.gameObject.AddComponent<Image>();
+
+                    parentImg.sprite = combined;
+                    parentImg.enabled = true;
+                    parentImg.color = Color.white; // Reset color to ensure visibility
+                }
             }
         }
     }
 
-    private Sprite CombineListToSprite(List<Image> images)
+    Sprite MergeImagesPreservingTransparency(List<Image> images, Transform rootParams)
     {
-        // --- Step A: Calculate the Size of the new texture ---
-        // We need to find the Bottom-Left and Top-Right corners of the WHOLE group in World Space
-        Vector2 minPos = new Vector2(float.MaxValue, float.MaxValue);
-        Vector2 maxPos = new Vector2(float.MinValue, float.MinValue);
+        // 1. Calculate Bounds
+        Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
+        Vector2 max = new Vector2(float.MinValue, float.MinValue);
 
         foreach (Image img in images)
         {
-            if (img.sprite == null) continue;
-
-            // Get the 4 corners of the UI element in World Space
             Vector3[] corners = new Vector3[4];
             img.rectTransform.GetWorldCorners(corners);
 
-            // corners[0] is bottom-left, corners[2] is top-right
-            foreach (Vector3 corner in corners)
+            foreach (Vector3 worldC in corners)
             {
-                if (corner.x < minPos.x) minPos.x = corner.x;
-                if (corner.y < minPos.y) minPos.y = corner.y;
-                if (corner.x > maxPos.x) maxPos.x = corner.x;
-                if (corner.y > maxPos.y) maxPos.y = corner.y;
+                Vector3 localC = rootParams.InverseTransformPoint(worldC);
+                if (localC.x < min.x) min.x = localC.x;
+                if (localC.y < min.y) min.y = localC.y;
+                if (localC.x > max.x) max.x = localC.x;
+                if (localC.y > max.y) max.y = localC.y;
             }
         }
 
-        // Calculate width and height required
-        int width = Mathf.CeilToInt(maxPos.x - minPos.x);
-        int height = Mathf.CeilToInt(maxPos.y - minPos.y);
+        int width = Mathf.CeilToInt(max.x - min.x);
+        int height = Mathf.CeilToInt(max.y - min.y);
 
         if (width <= 0 || height <= 0) return null;
 
-        // --- Step B: Create the Texture ---
-        Texture2D finalTexture = new Texture2D(width, height, TextureFormat.ARGB32, false);
+        // 2. Create a blank Transparent Texture
+        Texture2D finalTex = new Texture2D(width, height, TextureFormat.ARGB32, false);
 
-        // Fill with transparent pixels first
+        // IMPORTANT: Fill with clear transparency (0,0,0,0)
         Color[] clearColors = new Color[width * height];
-        finalTexture.SetPixels(clearColors);
+        for (int i = 0; i < clearColors.Length; i++) clearColors[i] = Color.clear;
+        finalTex.SetPixels(clearColors);
 
-        // --- Step C: Draw each image onto the texture ---
+        // 3. Draw Images
         foreach (Image img in images)
         {
-            if (img.sprite == null) continue;
+            Texture2D sourceTex = GetReadableTexture(img.sprite.texture); // <--- MAGIC HELPER
+            if (sourceTex == null) continue;
 
-            // Important: We must check if the sprite texture is readable
-            if (!img.sprite.texture.isReadable)
-            {
-                Debug.LogError($"Texture '{img.sprite.texture.name}' is not Readable. Go to Import Settings -> Advanced -> Check 'Read/Write Enabled'");
-                continue;
-            }
-
-            Texture2D sourceTex = img.sprite.texture;
-
-            // Calculate where this specific image starts relative to the Group's bottom-left (minPos)
+            // Calculate where this image goes
             Vector3[] corners = new Vector3[4];
             img.rectTransform.GetWorldCorners(corners);
-            Vector3 imageBottomLeft = corners[0]; // World space bottom-left of this image
+            Vector3 localBottomLeft = rootParams.InverseTransformPoint(corners[0]);
 
-            int startX = Mathf.RoundToInt(imageBottomLeft.x - minPos.x);
-            int startY = Mathf.RoundToInt(imageBottomLeft.y - minPos.y);
+            int startX = Mathf.RoundToInt(localBottomLeft.x - min.x);
+            int startY = Mathf.RoundToInt(localBottomLeft.y - min.y);
+            int targetW = Mathf.RoundToInt(img.rectTransform.rect.width);
+            int targetH = Mathf.RoundToInt(img.rectTransform.rect.height);
 
-            // Get original pixels
-            Color[] srcPixels = sourceTex.GetPixels();
-
-            // Loop through pixels to mix them (Alpha Blending)
-            for (int y = 0; y < sourceTex.height; y++)
+            // Copy pixels with resizing
+            for (int y = 0; y < targetH; y++)
             {
-                for (int x = 0; x < sourceTex.width; x++)
+                float v = y / (float)targetH;
+                for (int x = 0; x < targetW; x++)
                 {
+                    float u = x / (float)targetW;
+
+                    Color srcColor = sourceTex.GetPixelBilinear(u, v);
+                    srcColor *= img.color; // Apply tint
+
                     int finalX = startX + x;
                     int finalY = startY + y;
 
-                    // Safety check to ensure we don't write outside the texture bounds
                     if (finalX >= 0 && finalX < width && finalY >= 0 && finalY < height)
                     {
-                        Color newColor = srcPixels[y * sourceTex.width + x];
-
-                        // Only draw if the new pixel has some visibility
-                        if (newColor.a > 0)
+                        // Alpha Blending (Standard "Over" operator)
+                        if (srcColor.a > 0)
                         {
-                            Color oldColor = finalTexture.GetPixel(finalX, finalY);
-                            // Simple Alpha Blending: Lerp based on new alpha
-                            Color blendedColor = Color.Lerp(oldColor, newColor, newColor.a);
-                            blendedColor.a = Mathf.Max(oldColor.a, newColor.a); // Keep max alpha
+                            Color bgColor = finalTex.GetPixel(finalX, finalY);
 
-                            finalTexture.SetPixel(finalX, finalY, blendedColor);
+                            float outA = srcColor.a + bgColor.a * (1 - srcColor.a);
+                            Color outColor = (srcColor * srcColor.a + bgColor * bgColor.a * (1 - srcColor.a)) / outA;
+                            outColor.a = outA;
+
+                            finalTex.SetPixel(finalX, finalY, outColor);
                         }
                     }
                 }
             }
         }
 
-        finalTexture.Apply();
+        finalTex.Apply();
+        return Sprite.Create(finalTex, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f));
+    }
 
-        // --- Step D: Create Sprite ---
-        return Sprite.Create(finalTexture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f));
+    // This function solves the "Read/Write Enabled" error by using a temporary RenderTexture
+    Texture2D GetReadableTexture(Texture2D source)
+    {
+        if (source == null) return null;
+
+        // If it's already readable, just return it
+        if (source.isReadable) return source;
+
+        // If not, copy it to a temporary RenderTexture
+        RenderTexture tmp = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+        Graphics.Blit(source, tmp);
+
+        RenderTexture previous = RenderTexture.active;
+        RenderTexture.active = tmp;
+
+        Texture2D myTex = new Texture2D(source.width, source.height);
+        myTex.ReadPixels(new Rect(0, 0, tmp.width, tmp.height), 0, 0);
+        myTex.Apply();
+
+        RenderTexture.active = previous;
+        RenderTexture.ReleaseTemporary(tmp);
+
+        return myTex;
     }
 }
