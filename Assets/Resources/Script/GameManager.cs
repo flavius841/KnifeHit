@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject KnifeMenu;
     [SerializeField] bool SettingsOpened;
     [SerializeField] bool BackToHomeTransition;
+    [SerializeField] bool Settingsclicked;
 
     void Start()
     {
@@ -58,14 +59,16 @@ public class GameManager : MonoBehaviour
 
     public void SettingsButtonBool()
     {
-        if (!SettingsOpened)
-        {
-            SettingsTransition = true;
-        }
+        Settingsclicked = !Settingsclicked;
 
-        else
+        if (!Settingsclicked)
         {
             BackToHomeTransition = true;
+        }
+
+        if (Settingsclicked)
+        {
+            SettingsTransition = true;
         }
     }
 
@@ -80,9 +83,10 @@ public class GameManager : MonoBehaviour
         LeftTransition.transform.position += new Vector3(-TransitionSpeed * Time.deltaTime, 0, 0);
     }
 
-    public void QuitHome(GameObject RightTransition, GameObject LeftTransition, ref bool QuitHomeTransition, GameObject NextObject, float TransitionSpeed)
+    public void QuitHome(GameObject RightTransition, GameObject LeftTransition,
+     ref bool QuitHomeTransition, GameObject NextObject, float TransitionSpeed)
     {
-        if (NextObject.transform.position.y <= 1)
+        if (NextObject.transform.position.y <= 1.3f && NextObject.transform.position.y >= 1f)
         {
             QuitHomeTransition = false;
         }
