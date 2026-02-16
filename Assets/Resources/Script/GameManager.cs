@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject KnifeMenu;
     [SerializeField] bool SettingsOpened;
     [SerializeField] bool BackToHomeTransition;
-    [SerializeField] bool Settingsclicked;
+    [SerializeField] int Phase;
 
     void Start()
     {
@@ -30,23 +30,24 @@ public class GameManager : MonoBehaviour
     {
         if (HomeTransition)
         {
-            QuitHome(Logo, HomeButtons, ref HomeTransition, TargetNormal, Speed);
+            QuitHome(Logo, HomeButtons, ref HomeTransition, TargetNormal, Speed, 1);
         }
 
         if (SettingsTransition)
         {
-            QuitHome(Logo, PlayButton, ref SettingsTransition, SettingsButtons, Speed);
+            QuitHome(Logo, PlayButton, ref SettingsTransition, SettingsButtons, Speed, 1);
             SettingsOpened = true;
         }
 
         if (KnifeMenuTransition)
         {
-            QuitHome(ExitButton, KnifeMenuButton, ref KnifeMenuTransition, KnifeMenu, Speed);
+            QuitHome(ExitButton, KnifeMenuButton, ref KnifeMenuTransition, KnifeMenu, Speed, 1);
+            Phase = 3;
         }
 
         if (BackToHomeTransition)
         {
-            QuitHome(Logo, PlayButton, ref BackToHomeTransition, SettingsButtons, -Speed);
+            QuitHome(Logo, PlayButton, ref BackToHomeTransition, SettingsButtons, -Speed, 8);
             SettingsOpened = false;
         }
     }
@@ -59,16 +60,29 @@ public class GameManager : MonoBehaviour
 
     public void SettingsButtonBool()
     {
-        Settingsclicked = !Settingsclicked;
+        if (!SettingsTransition && !BackToHomeTransition && !KnifeMenuTransition)
+        {
+            Phase++;
 
-        if (!Settingsclicked)
+            if (Phase == 3)
+            {
+                Phase = 1;
+            }
+        }
+
+        if (Phase == 1)
         {
             BackToHomeTransition = true;
         }
 
-        if (Settingsclicked)
+        else if (Phase == 2)
         {
             SettingsTransition = true;
+        }
+
+        else
+        {
+
         }
     }
 
@@ -84,9 +98,9 @@ public class GameManager : MonoBehaviour
     }
 
     public void QuitHome(GameObject RightTransition, GameObject LeftTransition,
-     ref bool QuitHomeTransition, GameObject NextObject, float TransitionSpeed)
+     ref bool QuitHomeTransition, GameObject NextObject, float TransitionSpeed, int NextObjectY)
     {
-        if (NextObject.transform.position.y <= 1.3f && NextObject.transform.position.y >= 1f)
+        if (NextObject.transform.position.y <= NextObjectY + 0.3f && NextObject.transform.position.y >= NextObjectY)
         {
             QuitHomeTransition = false;
         }
