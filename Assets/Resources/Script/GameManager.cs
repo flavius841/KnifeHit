@@ -18,7 +18,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject ExitButton;
     [SerializeField] GameObject KnifeMenu;
     [SerializeField] bool SettingsOpened;
-    [SerializeField] bool BackToHomeTransition;
+    [SerializeField] bool BackToHomeTransition1;
+    [SerializeField] bool BackToHomeTransition2;
     [SerializeField] int Phase;
 
     void Start()
@@ -45,10 +46,17 @@ public class GameManager : MonoBehaviour
             Phase = 3;
         }
 
-        if (BackToHomeTransition)
+        if (BackToHomeTransition1)
         {
-            QuitHome(Logo, PlayButton, ref BackToHomeTransition, SettingsButtons, -Speed, 8);
+            QuitHome(Logo, PlayButton, ref BackToHomeTransition1, SettingsButtons, -Speed, 8);
             SettingsOpened = false;
+        }
+
+        if (BackToHomeTransition2)
+        {
+            //QuitHome(Logo, PlayButton, ref BackToHomeTransition2, KnifeMenu, -Speed, 13);
+            QuitHome(Logo, PlayButton, ref BackToHomeTransition2, KnifeMenu, -Speed / 3, 13.3f);
+            KnifeMenu.transform.position += new Vector3(0, Speed / 3.3f * Time.deltaTime, 0);
         }
     }
 
@@ -60,7 +68,7 @@ public class GameManager : MonoBehaviour
 
     public void SettingsButtonBool()
     {
-        if (!SettingsTransition && !BackToHomeTransition && !KnifeMenuTransition)
+        if (!SettingsTransition && !BackToHomeTransition1 && !KnifeMenuTransition)
         {
             Phase++;
 
@@ -68,11 +76,17 @@ public class GameManager : MonoBehaviour
             {
                 Phase = 1;
             }
+
+            // if (Phase == 4)
+            // {
+            //     Phase = 0;
+            // }
+
         }
 
         if (Phase == 1)
         {
-            BackToHomeTransition = true;
+            BackToHomeTransition1 = true;
         }
 
         else if (Phase == 2)
@@ -80,8 +94,12 @@ public class GameManager : MonoBehaviour
             SettingsTransition = true;
         }
 
-        else
+        else if (Phase == 4)
         {
+            Phase = 1;
+            ExitButton.transform.position = new Vector3(0, 6.24f, 0);
+            KnifeMenuButton.transform.position = new Vector3(0, 9.67f, 0);
+            BackToHomeTransition2 = true;
 
         }
     }
@@ -98,7 +116,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void QuitHome(GameObject RightTransition, GameObject LeftTransition,
-     ref bool QuitHomeTransition, GameObject NextObject, float TransitionSpeed, int NextObjectY)
+     ref bool QuitHomeTransition, GameObject NextObject, float TransitionSpeed, float NextObjectY)
     {
         if (NextObject.transform.position.y <= NextObjectY + 0.3f && NextObject.transform.position.y >= NextObjectY)
         {
@@ -107,7 +125,6 @@ public class GameManager : MonoBehaviour
 
         else if (DelayDone)
         {
-
             Transition(LeftTransition, RightTransition, -TransitionSpeed);
             NextObject.transform.position += new Vector3(0, -TransitionSpeed * Time.deltaTime, 0);
         }
