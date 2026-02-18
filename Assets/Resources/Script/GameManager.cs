@@ -1,8 +1,14 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 
 public class GameManager : MonoBehaviour
 {
     public bool HomeTransition;
+    public static int ID;
+    public bool GameRunning;
+
+
 
     [SerializeField] GameObject HomeButtons;
     [SerializeField] GameObject Logo;
@@ -12,7 +18,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject SettingsButtons;
     [SerializeField] bool SettingsTransition;
     [SerializeField] GameObject PlayButton;
-    [SerializeField] int ID;
     [SerializeField] bool KnifeMenuTransition;
     [SerializeField] GameObject KnifeMenuButton;
     [SerializeField] GameObject ExitButton;
@@ -32,24 +37,28 @@ public class GameManager : MonoBehaviour
         if (HomeTransition)
         {
             QuitHome(Logo, HomeButtons, ref HomeTransition, TargetNormal, Speed, 1);
+            GameRunning = true;
         }
 
         if (SettingsTransition)
         {
             QuitHome(Logo, PlayButton, ref SettingsTransition, SettingsButtons, Speed, 1);
             SettingsOpened = true;
+            GameRunning = false;
         }
 
         if (KnifeMenuTransition)
         {
             QuitHome(ExitButton, KnifeMenuButton, ref KnifeMenuTransition, KnifeMenu, Speed, 1);
             Phase = 3;
+            GameRunning = false;
         }
 
         if (BackToHomeTransition1)
         {
             QuitHome(Logo, PlayButton, ref BackToHomeTransition1, SettingsButtons, -Speed, 8);
             SettingsOpened = false;
+            GameRunning = false;
         }
 
         if (BackToHomeTransition2)
@@ -57,7 +66,10 @@ public class GameManager : MonoBehaviour
             //QuitHome(Logo, PlayButton, ref BackToHomeTransition2, KnifeMenu, -Speed, 13);
             QuitHome(Logo, PlayButton, ref BackToHomeTransition2, KnifeMenu, -Speed / 3, 13.3f);
             KnifeMenu.transform.position += new Vector3(0, Speed / 3.3f * Time.deltaTime, 0);
+            GameRunning = false;
         }
+
+        Debug.Log(ID);
     }
 
 
@@ -68,7 +80,7 @@ public class GameManager : MonoBehaviour
 
     public void SettingsButtonBool()
     {
-        if (!SettingsTransition && !BackToHomeTransition1 && !KnifeMenuTransition)
+        if (!SettingsTransition && !BackToHomeTransition1 && !KnifeMenuTransition && !BackToHomeTransition2)
         {
             Phase++;
 
@@ -76,12 +88,6 @@ public class GameManager : MonoBehaviour
             {
                 Phase = 1;
             }
-
-            // if (Phase == 4)
-            // {
-            //     Phase = 0;
-            // }
-
         }
 
         if (Phase == 1)
@@ -96,11 +102,16 @@ public class GameManager : MonoBehaviour
 
         else if (Phase == 4)
         {
-            Phase = 1;
+            Phase = 5;
             ExitButton.transform.position = new Vector3(0, 6.24f, 0);
             KnifeMenuButton.transform.position = new Vector3(0, 9.67f, 0);
             BackToHomeTransition2 = true;
 
+        }
+
+        else if (Phase == 6)
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 
@@ -148,6 +159,12 @@ public class GameManager : MonoBehaviour
     public void KnifeID(int id)
     {
         ID = id;
+        BackToHomeTransition2 = true;
+    }
+
+    public void StartGame()
+    {
+
     }
 
 }
