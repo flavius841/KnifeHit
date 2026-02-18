@@ -68,8 +68,6 @@ public class GameManager : MonoBehaviour
             KnifeMenu.transform.position += new Vector3(0, Speed / 3.3f * Time.deltaTime, 0);
             GameRunning = false;
         }
-
-        Debug.Log(ID);
     }
 
 

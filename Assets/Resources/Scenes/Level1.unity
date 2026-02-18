@@ -6048,7 +6048,7 @@ Transform:
   m_GameObject: {fileID: 1265123647}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 7.29, z: 0}
+  m_LocalPosition: {x: 0, y: 7.29, z: -1}
   m_LocalScale: {x: 0.61109, y: 0.61109, z: 0.61109}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6578,7 +6578,14 @@ MonoBehaviour:
   - {fileID: 270135721}
   - {fileID: 123230497}
   - {fileID: 1189068056}
+  CurrentKnive: []
   gameManager: {fileID: 1375559040}
+  Speed: 20
+  Shoot: 0
+  Target: {fileID: 1265123647}
+  distance: 0
+  NewKnife: 0
+  NumberOfKnives: -1
 --- !u!114 &1375559042
 MonoBehaviour:
   m_ObjectHideFlags: 0

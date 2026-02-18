@@ -10,6 +10,6 @@ public class DebugScript : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(transform.position + " " + ID);
+        //Debug.Log(transform.position + " " + ID);
     }
 }
