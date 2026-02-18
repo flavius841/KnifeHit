@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class KnifeManager : MonoBehaviour
 {
     [SerializeField] List<GameObject> knives;
-    [SerializeField] List<GameObject> CurrentKnive;
+    // [SerializeField] List<GameObject> CurrentKnive;
     public GameManager gameManager;
     [SerializeField] float Speed;
     [SerializeField] bool Shoot;
@@ -12,6 +12,9 @@ public class KnifeManager : MonoBehaviour
     [SerializeField] float distance;
     [SerializeField] bool NewKnife;
     [SerializeField] int NumberOfKnives;
+    [SerializeField] GameObject CurrentKnife;
+    [SerializeField] float Timer;
+    [SerializeField] float CurrentTime;
 
     void Start()
     {
@@ -20,24 +23,31 @@ public class KnifeManager : MonoBehaviour
             knife.transform.position = new Vector3(0, -6.5f, 0);
         }
 
-        CurrentKnive.Add(knives[GameManager.ID]);
+        CurrentKnife = Instantiate(
+        knives[GameManager.ID],
+        new Vector3(0, -6.5f, 0),
+        Quaternion.identity
+        );
+
+
     }
+
 
     void Update()
     {
         if (gameManager.GameRunning)
         {
-            if (knives[GameManager.ID].transform.position.y < -3.5f)
+            if (CurrentKnife.transform.position.y < -3.5f)
             {
-                knives[GameManager.ID].transform.position += new Vector3(0, 10 * Time.deltaTime, 0);
+                CurrentKnife.transform.position += new Vector3(0, 10 * Time.deltaTime, 0);
             }
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Instantiate(CurrentKnive[NumberOfKnives], new Vector3(0, -6.5f, 0), Quaternion.identity);
+
             Shoot = true;
-            NumberOfKnives++;
+
         }
 
         if (Shoot)
@@ -47,7 +57,12 @@ public class KnifeManager : MonoBehaviour
 
         if (NewKnife)
         {
-            CurrentKnive.Add(knives[GameManager.ID]);
+            CurrentKnife = Instantiate(
+            knives[GameManager.ID],
+            new Vector3(0, -6.5f, 0),
+            Quaternion.identity
+            );
+
             NewKnife = false;
         }
 
@@ -55,16 +70,19 @@ public class KnifeManager : MonoBehaviour
 
     public void ShootKnife()
     {
-        distance = Vector3.Distance(CurrentKnive[NumberOfKnives].transform.position, Target.transform.position);
+        distance = Vector3.Distance(CurrentKnife.transform.position, Target.transform.position);
 
         if (distance < 2)
         {
             Shoot = false;
             NewKnife = true;
+            NumberOfKnives++;
+            CurrentKnife.transform.SetParent(Target.transform);
+
             return;
         }
 
-        CurrentKnive[NumberOfKnives].transform.position += new Vector3(0, Speed * Time.deltaTime, 0);
+        CurrentKnife.transform.position += new Vector3(0, Speed * Time.deltaTime, 0);
 
     }
 }
