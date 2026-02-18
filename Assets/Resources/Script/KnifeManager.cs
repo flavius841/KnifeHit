@@ -8,6 +8,7 @@ public class KnifeManager : MonoBehaviour
     public GameManager gameManager;
     [SerializeField] float Speed;
     [SerializeField] bool Shoot;
+    [SerializeField] GameObject CurrentTarget;
     [SerializeField] GameObject Target;
     [SerializeField] float distance;
     [SerializeField] bool NewKnife;
@@ -15,6 +16,7 @@ public class KnifeManager : MonoBehaviour
     [SerializeField] GameObject CurrentKnife;
     [SerializeField] float Timer;
     [SerializeField] float CurrentTime;
+    [SerializeField] int Durability;
 
     void Start()
     {
@@ -29,12 +31,13 @@ public class KnifeManager : MonoBehaviour
         Quaternion.identity
         );
 
-
+        Durability = Random.Range(3, 7);
     }
 
 
     void Update()
     {
+
         if (gameManager.GameRunning)
         {
             if (CurrentKnife.transform.position.y < -3.5f)
@@ -43,42 +46,71 @@ public class KnifeManager : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Durability > 0 && CurrentTarget.transform.position.y <= 1.3f && CurrentTarget.transform.position.y > 1)
         {
 
-            Shoot = true;
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
 
+                Shoot = true;
+
+            }
+
+            if (Shoot)
+            {
+                ShootKnife();
+            }
+
+            if (NewKnife)
+            {
+                CurrentKnife = Instantiate(
+                knives[GameManager.ID],
+                new Vector3(0, -6.5f, 0),
+                Quaternion.identity
+                );
+
+                NewKnife = false;
+            }
         }
 
-        if (Shoot)
+        else if (Durability > 0 && gameManager.GameRunning)
         {
-            ShootKnife();
+            CurrentTarget.transform.position += new Vector3(0, -10 * Time.deltaTime, 0);
         }
 
-        if (NewKnife)
+        else
         {
-            CurrentKnife = Instantiate(
-            knives[GameManager.ID],
-            new Vector3(0, -6.5f, 0),
-            Quaternion.identity
-            );
+            if (CurrentTarget.transform.position.x < 10)
+            {
+                CurrentTarget.transform.position += new Vector3(7 * Time.deltaTime, 0, 0);
+            }
 
-            NewKnife = false;
+            else
+            {
+                CurrentTarget = Instantiate(
+                Target,
+                new Vector3(0, 7.29f, 0),
+                Quaternion.identity
+                );
+                Durability = Random.Range(3, 7);
+            }
         }
+
+
 
     }
 
     public void ShootKnife()
     {
-        distance = Vector3.Distance(CurrentKnife.transform.position, Target.transform.position);
+        distance = Vector3.Distance(CurrentKnife.transform.position, CurrentTarget.transform.position);
 
         if (distance < 2)
         {
             Shoot = false;
             NewKnife = true;
             NumberOfKnives++;
-            CurrentKnife.transform.SetParent(Target.transform);
-
+            CurrentKnife.transform.SetParent(CurrentTarget.transform);
+            Durability--;
             return;
         }
 

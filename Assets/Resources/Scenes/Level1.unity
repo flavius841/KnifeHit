@@ -6581,12 +6581,15 @@ MonoBehaviour:
   gameManager: {fileID: 1375559040}
   Speed: 20
   Shoot: 0
+  CurrentTarget: {fileID: 1265123647}
   Target: {fileID: 1265123647}
   distance: 0
   NewKnife: 0
   NumberOfKnives: 0
   CurrentKnife: {fileID: 0}
-  FirstKnife: 1
+  Timer: 0
+  CurrentTime: 0
+  Lifes: 0
 --- !u!114 &1375559042
 MonoBehaviour:
   m_ObjectHideFlags: 0
