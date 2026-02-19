@@ -9,7 +9,7 @@ public class KnifeManager : MonoBehaviour
     [SerializeField] float Speed;
     [SerializeField] bool Shoot;
     [SerializeField] GameObject CurrentTarget;
-    [SerializeField] GameObject Target;
+    [SerializeField] GameObject PrefabTarget;
     [SerializeField] float distance;
     [SerializeField] bool NewKnife;
     [SerializeField] int NumberOfKnives;
@@ -17,6 +17,9 @@ public class KnifeManager : MonoBehaviour
     [SerializeField] float Timer;
     [SerializeField] float CurrentTime;
     [SerializeField] int Durability;
+    [SerializeField] bool Hard;
+    [SerializeField] float RotateSpeed;
+    [SerializeField] float MaxRotateSpeed;
 
     void Start()
     {
@@ -70,7 +73,10 @@ public class KnifeManager : MonoBehaviour
                 );
 
                 NewKnife = false;
+
             }
+
+
         }
 
         else if (Durability > 0 && gameManager.GameRunning)
@@ -78,7 +84,7 @@ public class KnifeManager : MonoBehaviour
             CurrentTarget.transform.position += new Vector3(0, -10 * Time.deltaTime, 0);
         }
 
-        else
+        else if (gameManager.GameRunning)
         {
             if (CurrentTarget.transform.position.x < 10)
             {
@@ -88,15 +94,18 @@ public class KnifeManager : MonoBehaviour
             else
             {
                 CurrentTarget = Instantiate(
-                Target,
-                new Vector3(0, 7.29f, 0),
+                PrefabTarget,
+                new Vector3(0, 7.29f, -1),
                 Quaternion.identity
                 );
                 Durability = Random.Range(3, 7);
+                RotateSpeed = Random.Range(100, 200);
+                MaxRotateSpeed = RotateSpeed;
+                Hard = Random.Range(0, 2) == 1;
             }
         }
 
-
+        RotateTarget();
 
     }
 
@@ -116,5 +125,27 @@ public class KnifeManager : MonoBehaviour
 
         CurrentKnife.transform.position += new Vector3(0, Speed * Time.deltaTime, 0);
 
+    }
+
+    public void RotateTarget()
+    {
+        if (CurrentTarget == null)
+        {
+            return;
+        }
+
+        if (Hard)
+        {
+
+            RotateSpeed = Mathf.PingPong(Time.time * 20, MaxRotateSpeed * 2) - MaxRotateSpeed;
+
+            if (RotateSpeed <= -MaxRotateSpeed + 0.1f)
+            {
+                MaxRotateSpeed += 20;
+            }
+
+        }
+
+        CurrentTarget.transform.Rotate(new Vector3(0, 0, RotateSpeed * Time.deltaTime));
     }
 }
