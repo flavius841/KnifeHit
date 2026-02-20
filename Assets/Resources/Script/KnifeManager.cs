@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 
 public class KnifeManager : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class KnifeManager : MonoBehaviour
     [SerializeField] GameObject CurrentTarget;
     [SerializeField] GameObject PrefabTarget;
     [SerializeField] float distance;
+    [SerializeField] float Obstacledistance;
+    [SerializeField] float KnifesDistance;
     [SerializeField] bool NewKnife;
     [SerializeField] int NumberOfKnives;
     [SerializeField] GameObject CurrentKnife;
@@ -22,26 +25,23 @@ public class KnifeManager : MonoBehaviour
     [SerializeField] float RotateSpeed;
     [SerializeField] float MaxRotateSpeed;
     [SerializeField] bool FirstTime;
+    [SerializeField] bool FirstKnife = true;
     [SerializeField] int ObstacleNumber;
     [SerializeField] int Score;
     [SerializeField] GameObject ObstaclePrefab;
     [SerializeField] List<GameObject> Obstacles;
+    [SerializeField] List<GameObject> KbifeList;
     [SerializeField] float min;
     [SerializeField] float max;
     [SerializeField] float minDistance = 5f;
-
+    [SerializeField] bool Lose;
+    [SerializeField] TextMeshProUGUI LoseText;
     void Start()
     {
         foreach (var knife in knives)
         {
             knife.transform.position = new Vector3(0, -6.5f, 0);
         }
-
-        CurrentKnife = Instantiate(
-        knives[GameManager.ID],
-        new Vector3(0, -6.5f, 0),
-        Quaternion.identity
-        );
 
         Durability = Random.Range(3, 7);
     }
@@ -52,6 +52,23 @@ public class KnifeManager : MonoBehaviour
         if (Durability == 0)
         {
             FirstTime = false;
+        }
+
+        if (Lose)
+        {
+            LoseText.text = "You Losed" + Score.ToString();
+            Lose = false;
+        }
+
+        if (gameManager.GameRunning && FirstKnife)
+        {
+            CurrentKnife = Instantiate(
+            knives[GameManager.ID],
+            new Vector3(0, -6.5f, 0),
+            Quaternion.identity
+            );
+
+            FirstKnife = false;
         }
 
         if (gameManager.GameRunning)
@@ -79,6 +96,8 @@ public class KnifeManager : MonoBehaviour
 
             if (NewKnife)
             {
+                KbifeList.Add(CurrentKnife);
+
                 CurrentKnife = Instantiate(
                 knives[GameManager.ID],
                 new Vector3(0, -6.5f, 0),
@@ -117,6 +136,7 @@ public class KnifeManager : MonoBehaviour
                 Hard = Random.Range(0, 2) == 1;
                 ObstacleNumber = Random.Range(0, 9);
                 angles = GenerateAngles(ObstacleNumber);
+                KbifeList.Clear();
 
                 Obstacles.Clear();
 
@@ -138,6 +158,7 @@ public class KnifeManager : MonoBehaviour
         }
 
         RotateTarget();
+        LoseFunction();
 
     }
 
@@ -205,4 +226,31 @@ public class KnifeManager : MonoBehaviour
 
         return values;
     }
+
+    public void LoseFunction()
+    {
+        foreach (var obs in Obstacles)
+        {
+            Obstacledistance = Vector3.Distance(CurrentKnife.transform.position, obs.transform.GetChild(0).position);
+
+            if (Obstacledistance < 0.5f)
+            {
+                Debug.Log(Obstacledistance);
+                Lose = true;
+            }
+        }
+
+        foreach (var ShotedKnifes in KbifeList)
+        {
+            KnifesDistance = Vector3.Distance(CurrentKnife.transform.position, ShotedKnifes.transform.position);
+
+            if (KnifesDistance < 0.4f)
+            {
+                Lose = true;
+            }
+
+
+        }
+    }
+
 }
