@@ -20,6 +20,11 @@ public class KnifeManager : MonoBehaviour
     [SerializeField] bool Hard;
     [SerializeField] float RotateSpeed;
     [SerializeField] float MaxRotateSpeed;
+    [SerializeField] bool FirstTime;
+    [SerializeField] int ObstacleNumber;
+    [SerializeField] int Score;
+    [SerializeField] GameObject ObstaclePrefab;
+    [SerializeField] List<GameObject> Obstacles;
 
     void Start()
     {
@@ -40,6 +45,10 @@ public class KnifeManager : MonoBehaviour
 
     void Update()
     {
+        if (Durability == 0)
+        {
+            FirstTime = false;
+        }
 
         if (gameManager.GameRunning)
         {
@@ -79,12 +88,12 @@ public class KnifeManager : MonoBehaviour
 
         }
 
-        else if (Durability > 0 && gameManager.GameRunning)
+        else if (Durability > 0 && gameManager.GameRunning && !FirstTime)
         {
             CurrentTarget.transform.position += new Vector3(0, -10 * Time.deltaTime, 0);
         }
 
-        else if (gameManager.GameRunning)
+        else if (gameManager.GameRunning && !FirstTime)
         {
             if (CurrentTarget.transform.position.x < 10)
             {
@@ -102,6 +111,22 @@ public class KnifeManager : MonoBehaviour
                 RotateSpeed = Random.Range(100, 200);
                 MaxRotateSpeed = RotateSpeed;
                 Hard = Random.Range(0, 2) == 1;
+                ObstacleNumber = Random.Range(0, 9);
+
+                for (int i = 0; i < ObstacleNumber; i++)
+                {
+                    Obstacles.Add(Instantiate(
+                    ObstaclePrefab,
+                    new Vector3(0, 0, 0),
+                    Quaternion.identity,
+                    CurrentTarget.transform
+                    ));
+
+                    Obstacles[i].transform.localPosition = new Vector3(0, 0, 0);
+
+                }
+
+                Score++;
             }
         }
 
@@ -138,12 +163,6 @@ public class KnifeManager : MonoBehaviour
         {
 
             RotateSpeed = Mathf.PingPong(Time.time * 20, MaxRotateSpeed * 2) - MaxRotateSpeed;
-
-            if (RotateSpeed <= -MaxRotateSpeed + 0.1f)
-            {
-                MaxRotateSpeed += 20;
-            }
-
         }
 
         CurrentTarget.transform.Rotate(new Vector3(0, 0, RotateSpeed * Time.deltaTime));
