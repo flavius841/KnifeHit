@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class KnifeManager : MonoBehaviour
 {
     [SerializeField] List<GameObject> knives;
+    [SerializeField] List<float> angles;
     // [SerializeField] List<GameObject> CurrentKnive;
     public GameManager gameManager;
     [SerializeField] float Speed;
@@ -25,6 +26,9 @@ public class KnifeManager : MonoBehaviour
     [SerializeField] int Score;
     [SerializeField] GameObject ObstaclePrefab;
     [SerializeField] List<GameObject> Obstacles;
+    [SerializeField] float min;
+    [SerializeField] float max;
+    [SerializeField] float minDistance = 5f;
 
     void Start()
     {
@@ -112,18 +116,21 @@ public class KnifeManager : MonoBehaviour
                 MaxRotateSpeed = RotateSpeed;
                 Hard = Random.Range(0, 2) == 1;
                 ObstacleNumber = Random.Range(0, 9);
+                angles = GenerateAngles(ObstacleNumber);
+
+                Obstacles.Clear();
 
                 for (int i = 0; i < ObstacleNumber; i++)
                 {
-                    Obstacles.Add(Instantiate(
-                    ObstaclePrefab,
-                    new Vector3(0, 0, 0),
-                    Quaternion.identity,
-                    CurrentTarget.transform
-                    ));
+                    GameObject obs = Instantiate(
+                        ObstaclePrefab,
+                        CurrentTarget.transform
+                    );
 
-                    Obstacles[i].transform.localPosition = new Vector3(0, 0, 0);
+                    obs.transform.localPosition = new Vector3(0, 0, 1);
+                    obs.transform.localRotation = Quaternion.Euler(0, 0, angles[i]);
 
+                    Obstacles.Add(obs);
                 }
 
                 Score++;
@@ -166,5 +173,36 @@ public class KnifeManager : MonoBehaviour
         }
 
         CurrentTarget.transform.Rotate(new Vector3(0, 0, RotateSpeed * Time.deltaTime));
+    }
+
+
+    public List<float> GenerateAngles(int count)
+    {
+        List<float> values = new List<float>();
+
+        int safety = 0;
+
+        while (values.Count < count && safety < 10000)
+        {
+            float candidate = Random.Range(min, max);
+
+            bool tooClose = false;
+
+            foreach (float value in values)
+            {
+                if (Mathf.Abs(value - candidate) < minDistance)
+                {
+                    tooClose = true;
+                    break;
+                }
+            }
+
+            if (!tooClose)
+                values.Add(candidate);
+
+            safety++;
+        }
+
+        return values;
     }
 }

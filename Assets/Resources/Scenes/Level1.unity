@@ -3596,9 +3596,9 @@ Transform:
   m_GameObject: {fileID: 636108520}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0, z: -0.74378675, w: 0.668417}
-  m_LocalPosition: {x: 10.22, y: 4.69, z: 0}
-  m_LocalScale: {x: 0.61109, y: 0.61109, z: 0.61109}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 10.38, y: 2.33, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1254529878}
   m_Father: {fileID: 0}
@@ -7805,6 +7805,7 @@ MonoBehaviour:
   - {fileID: 270135721}
   - {fileID: 123230497}
   - {fileID: 1189068056}
+  angles: []
   gameManager: {fileID: 1375559040}
   Speed: 20
   Shoot: 0
@@ -7818,13 +7819,16 @@ MonoBehaviour:
   CurrentTime: 0
   Durability: 0
   Hard: 0
-  RotateSpeed: 0
+  RotateSpeed: 100
   MaxRotateSpeed: 0
   FirstTime: 1
   ObstacleNumber: 0
   Score: 0
   ObstaclePrefab: {fileID: 636108520}
   Obstacles: []
+  min: 0
+  max: 359
+  minDistance: 20
 --- !u!114 &1375559042
 MonoBehaviour:
   m_ObjectHideFlags: 0
