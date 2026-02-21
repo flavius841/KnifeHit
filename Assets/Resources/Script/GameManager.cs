@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public bool HomeTransition;
     public static int ID;
     public bool GameRunning;
+    public KnifeManager knifeManager;
 
 
 
@@ -26,6 +27,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] bool BackToHomeTransition1;
     [SerializeField] bool BackToHomeTransition2;
     [SerializeField] int Phase;
+    [SerializeField] GameObject None;
 
     void Start()
     {
@@ -68,6 +70,21 @@ public class GameManager : MonoBehaviour
             KnifeMenu.transform.position += new Vector3(0, Speed / 3.3f * Time.deltaTime, 0);
             GameRunning = false;
         }
+
+        if (knifeManager.Lose)
+        {
+            QuitHome(Logo, HomeButtons, ref knifeManager.Lose, None, -Speed / 6, 6.8f);
+            if (!knifeManager.Lose)
+            {
+                GameRunning = false;
+            }
+        }
+
+        else
+        {
+            None.transform.position = TargetNormal.transform.position;
+        }
+
     }
 
 
@@ -160,9 +177,13 @@ public class GameManager : MonoBehaviour
         BackToHomeTransition2 = true;
     }
 
-    public void StartGame()
-    {
+    // public void LoseTransition()
+    // {
+    //     if (knifeManager.Lose)
+    //     {
 
-    }
+    //     }
+    // }
+
 
 }

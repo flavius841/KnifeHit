@@ -34,8 +34,9 @@ public class KnifeManager : MonoBehaviour
     [SerializeField] float min;
     [SerializeField] float max;
     [SerializeField] float minDistance = 5f;
-    [SerializeField] bool Lose;
+    public bool Lose;
     [SerializeField] TextMeshProUGUI LoseText;
+    [SerializeField] float alpha = 0;
     void Start()
     {
         foreach (var knife in knives)
@@ -49,15 +50,16 @@ public class KnifeManager : MonoBehaviour
 
     void Update()
     {
+        if (Lose)
+        {
+            LoseText.text = "You Losed \nScore: " + Score.ToString();
+            FadeText();
+            Durability = 0;
+        }
+
         if (Durability == 0)
         {
             FirstTime = false;
-        }
-
-        if (Lose)
-        {
-            LoseText.text = "You Losed" + Score.ToString();
-            Lose = false;
         }
 
         if (gameManager.GameRunning && FirstKnife)
@@ -116,7 +118,7 @@ public class KnifeManager : MonoBehaviour
             CurrentTarget.transform.position += new Vector3(0, -10 * Time.deltaTime, 0);
         }
 
-        else if (gameManager.GameRunning && !FirstTime)
+        else if (gameManager.GameRunning && !FirstTime && !Lose)
         {
             if (CurrentTarget.transform.position.x < 10)
             {
@@ -235,7 +237,6 @@ public class KnifeManager : MonoBehaviour
 
             if (Obstacledistance < 0.5f)
             {
-                Debug.Log(Obstacledistance);
                 Lose = true;
             }
         }
@@ -251,6 +252,14 @@ public class KnifeManager : MonoBehaviour
 
 
         }
+    }
+
+    public void FadeText()
+    {
+        alpha = Mathf.MoveTowards(alpha, 1, 2 * Time.deltaTime);
+        Color color = LoseText.color;
+        color.a = alpha;
+        LoseText.color = color;
     }
 
 }
