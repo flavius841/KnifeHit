@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class KnifeManager : MonoBehaviour
 {
@@ -37,10 +38,15 @@ public class KnifeManager : MonoBehaviour
     public bool Lose;
     [SerializeField] TextMeshProUGUI LoseText;
     [SerializeField] TextMeshProUGUI ScoreText;
+    [SerializeField] GameObject TutorialText;
     [SerializeField] float LoseTextAlpha = 0;
     [SerializeField] float KnifeAplha = 1;
     [SerializeField] float ScoreTextAlpha = 0;
     [SerializeField] bool FadedIn;
+    [SerializeField] float BlinkTime;
+
+
+
 
     void Start()
     {
@@ -81,6 +87,8 @@ public class KnifeManager : MonoBehaviour
             Durability = 0;
         }
 
+
+
         if (Durability == 0)
         {
             FirstTime = false;
@@ -104,8 +112,23 @@ public class KnifeManager : MonoBehaviour
                 CurrentKnife.transform.position += new Vector3(0, 10 * Time.deltaTime, 0);
             }
 
-            // ScoreText.text = "Score: " + Score.ToString();
-            // ScoreTextAlpha = FadeText(ScoreText, 1, 1, ScoreTextAlpha);
+
+            if (!FirstTime && !Lose)
+            {
+                ScoreText.text = "Score: " + Score.ToString();
+                ScoreTextAlpha = FadeText(ScoreText, 1, 1, ScoreTextAlpha);
+                TutorialText.SetActive(false);
+            }
+
+            else
+            {
+                ScoreTextAlpha = 0;
+            }
+
+            if (FirstTime)
+            {
+                BlinkText();
+            }
 
         }
 
@@ -306,6 +329,27 @@ public class KnifeManager : MonoBehaviour
             color2.a = KnifeAplha;
             child.GetComponent<SpriteRenderer>().color = color2;
         }
+    }
+
+    public void BlinkText()
+    {
+        BlinkTime += Time.deltaTime;
+
+        if (BlinkTime > 2)
+        {
+            BlinkTime = 0;
+        }
+
+        else if (BlinkTime >= 1)
+        {
+            TutorialText.SetActive(true);
+        }
+
+        else
+        {
+            TutorialText.SetActive(false);
+        }
+
     }
 
 }

@@ -69,6 +69,11 @@ public class GameManager : MonoBehaviour
             QuitHome(Logo, PlayButton, ref BackToHomeTransition2, KnifeMenu, -Speed / 3, 13.3f);
             KnifeMenu.transform.position += new Vector3(0, Speed / 3.3f * Time.deltaTime, 0);
             GameRunning = false;
+
+            if (!BackToHomeTransition2)
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
         }
 
         if (knifeManager.Lose)
@@ -76,9 +81,10 @@ public class GameManager : MonoBehaviour
             QuitHome(Logo, HomeButtons, ref knifeManager.Lose, None, -Speed / 6, 6.8f);
             if (!knifeManager.Lose)
             {
-                GameRunning = false;
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }
         }
+
 
         else
         {
@@ -124,10 +130,10 @@ public class GameManager : MonoBehaviour
 
         }
 
-        else if (Phase == 6)
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        }
+        // else if (Phase == 6)
+        // {
+        //     SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        // }
     }
 
     public void KnifeMenuButtonBool()
