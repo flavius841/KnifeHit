@@ -37,8 +37,9 @@ public class KnifeManager : MonoBehaviour
     public bool Lose;
     [SerializeField] TextMeshProUGUI LoseText;
     [SerializeField] TextMeshProUGUI ScoreText;
-    [SerializeField] float TextAlpha = 0;
+    [SerializeField] float LoseTextAlpha = 0;
     [SerializeField] float KnifeAplha = 1;
+    [SerializeField] float ScoreTextAlpha = 0;
     [SerializeField] bool FadedIn;
 
     void Start()
@@ -54,22 +55,26 @@ public class KnifeManager : MonoBehaviour
 
     void Update()
     {
+        Debug.Log(ScoreText.color.a);
+
         if (Lose)
         {
+            ScoreTextAlpha = FadeText(ScoreText, 0, 1, ScoreTextAlpha);
+
             LoseText.text = "You Losed \nScore: " + Score.ToString();
-            if (TextAlpha == 1)
+            if (LoseTextAlpha == 1)
             {
                 FadedIn = true;
             }
 
             if (FadedIn)
             {
-                FadeOutText();
+                LoseTextAlpha = FadeText(LoseText, 0, 0.2f, LoseTextAlpha);
             }
 
             else
             {
-                FadeInText();
+                LoseTextAlpha = FadeText(LoseText, 1, 1, LoseTextAlpha);
             }
 
             FadeCurrentKnife();
@@ -98,6 +103,10 @@ public class KnifeManager : MonoBehaviour
             {
                 CurrentKnife.transform.position += new Vector3(0, 10 * Time.deltaTime, 0);
             }
+
+            // ScoreText.text = "Score: " + Score.ToString();
+            // ScoreTextAlpha = FadeText(ScoreText, 1, 1, ScoreTextAlpha);
+
         }
 
         if (Durability > 0 && CurrentTarget.transform.position.y <= 1.3f && CurrentTarget.transform.position.y > 1)
@@ -273,20 +282,14 @@ public class KnifeManager : MonoBehaviour
         }
     }
 
-    public void FadeInText(TextMeshProUGUI textType)
+    public float FadeText(TextMeshProUGUI textType, int Target, float Speed, float Alpha)
     {
-        TextAlpha = Mathf.MoveTowards(TextAlpha, 1, 2 * Time.deltaTime);
-        Color color = LoseText.color;
-        color.a = TextAlpha;
-        LoseText.color = color;
-    }
+        Alpha = Mathf.MoveTowards(Alpha, Target, Speed * Time.deltaTime);
+        Color color = textType.color;
+        color.a = Alpha;
+        textType.color = color;
 
-    public void FadeOutText(TextMeshProUGUI textType)
-    {
-        TextAlpha = Mathf.MoveTowards(TextAlpha, 0, 0.2f * Time.deltaTime);
-        Color color = LoseText.color;
-        color.a = TextAlpha;
-        LoseText.color = color;
+        return Alpha;
     }
 
 

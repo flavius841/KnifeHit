@@ -3946,7 +3946,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Score: 10'
+  m_text: ssssssss
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7f68435c69ade7c0daad9b9c41a7c384, type: 2}
   m_sharedMaterial: {fileID: -8739576905024451390, guid: 7f68435c69ade7c0daad9b9c41a7c384, type: 2}
@@ -3955,8 +3955,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278244885
-  m_fontColor: {r: 0.08235294, g: 0.8392157, b: 0, a: 1}
+    rgba: 54805
+  m_fontColor: {r: 0.08235294, g: 0.8392157, b: 0, a: 0}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -8244,8 +8244,9 @@ MonoBehaviour:
   Lose: 0
   LoseText: {fileID: 282204371}
   ScoreText: {fileID: 666682287}
-  TextAlpha: 0
+  LoseTextAlpha: 0
   KnifeAplha: 1
+  ScoreTextAlpha: 1
   FadedIn: 0
 --- !u!114 &1375559042
 MonoBehaviour:
