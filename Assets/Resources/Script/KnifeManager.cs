@@ -36,7 +36,11 @@ public class KnifeManager : MonoBehaviour
     [SerializeField] float minDistance = 5f;
     public bool Lose;
     [SerializeField] TextMeshProUGUI LoseText;
-    [SerializeField] float alpha = 0;
+    [SerializeField] TextMeshProUGUI ScoreText;
+    [SerializeField] float TextAlpha = 0;
+    [SerializeField] float KnifeAplha = 1;
+    [SerializeField] bool FadedIn;
+
     void Start()
     {
         foreach (var knife in knives)
@@ -53,7 +57,22 @@ public class KnifeManager : MonoBehaviour
         if (Lose)
         {
             LoseText.text = "You Losed \nScore: " + Score.ToString();
-            FadeText();
+            if (TextAlpha == 1)
+            {
+                FadedIn = true;
+            }
+
+            if (FadedIn)
+            {
+                FadeOutText();
+            }
+
+            else
+            {
+                FadeInText();
+            }
+
+            FadeCurrentKnife();
             Durability = 0;
         }
 
@@ -118,14 +137,14 @@ public class KnifeManager : MonoBehaviour
             CurrentTarget.transform.position += new Vector3(0, -10 * Time.deltaTime, 0);
         }
 
-        else if (gameManager.GameRunning && !FirstTime && !Lose)
+        else if (gameManager.GameRunning && !FirstTime)
         {
             if (CurrentTarget.transform.position.x < 10)
             {
                 CurrentTarget.transform.position += new Vector3(7 * Time.deltaTime, 0, 0);
             }
 
-            else
+            else if (!Lose)
             {
                 CurrentTarget = Instantiate(
                 PrefabTarget,
@@ -254,12 +273,36 @@ public class KnifeManager : MonoBehaviour
         }
     }
 
-    public void FadeText()
+    public void FadeInText(TextMeshProUGUI textType)
     {
-        alpha = Mathf.MoveTowards(alpha, 1, 2 * Time.deltaTime);
+        TextAlpha = Mathf.MoveTowards(TextAlpha, 1, 2 * Time.deltaTime);
         Color color = LoseText.color;
-        color.a = alpha;
+        color.a = TextAlpha;
         LoseText.color = color;
+    }
+
+    public void FadeOutText(TextMeshProUGUI textType)
+    {
+        TextAlpha = Mathf.MoveTowards(TextAlpha, 0, 0.2f * Time.deltaTime);
+        Color color = LoseText.color;
+        color.a = TextAlpha;
+        LoseText.color = color;
+    }
+
+
+    public void FadeCurrentKnife()
+    {
+        KnifeAplha = Mathf.MoveTowards(KnifeAplha, 0, 2 * Time.deltaTime);
+        Color color1 = CurrentKnife.GetComponent<SpriteRenderer>().color;
+        color1.a = KnifeAplha;
+        CurrentKnife.GetComponent<SpriteRenderer>().color = color1;
+
+        foreach (Transform child in CurrentKnife.transform)
+        {
+            Color color2 = child.GetComponent<SpriteRenderer>().color;
+            color2.a = KnifeAplha;
+            child.GetComponent<SpriteRenderer>().color = color2;
+        }
     }
 
 }
